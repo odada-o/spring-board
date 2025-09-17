@@ -1,0 +1,47 @@
+# Docker Compose 설정 파일
+# Spring Boot + MySQL 개발 환경 구성
+
+version: '3.8'
+
+services:
+  # MySQL 데이터베이스 서비스
+  mysql:
+    image: mysql:8.0                    # MySQL 8.0 이미지 사용
+    container_name: simple-board-mysql  # 컨테이너 이름 지정
+    restart: always                     # 항상 재시작
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234!!   # root 계정 비밀번호
+      MYSQL_DATABASE: simple_board      # 생성할 데이터베이스명
+      MYSQL_USER: board_user            # 추가 사용자 생성
+      MYSQL_PASSWORD: board_pass        # 추가 사용자 비밀번호
+    ports:
+      - "3306:3306"                     # 포트 매핑: 로컬3306 → 컨테이너3306
+    volumes:
+      - mysql_data:/var/lib/mysql       # 데이터 영구 보존
+    networks:
+      - spring-network                  # 네트워크 연결
+
+  # Spring Boot 애플리케이션 서비스 (나중에 추가 예정)
+  # spring-app:
+  #   build: .                          # 현재 폴더의 Dockerfile 사용
+  #   container_name: simple-board-app
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"                   # 포트 매핑
+  #   depends_on:
+  #     - mysql                         # MySQL 먼저 실행
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/simple_board?useSSL=false&allowPublicKeyRetrieval=true
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root1234!!
+  #   networks:
+  #     - spring-network
+
+# 데이터 영구 보존을 위한 볼륨
+volumes:
+  mysql_data:
+
+# 컨테이너 간 통신을 위한 네트워크
+networks:
+  spring-network:
+    driver: bridge
